@@ -1,2 +1,6 @@
 numpy == 1.16.2
 mido == 1.2.9
+matplotlib == 3.0.3
+#sklearn == 0.20.3
+librosa == 0.6.3
+scipy == 1.2.1
