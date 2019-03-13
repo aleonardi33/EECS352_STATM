@@ -1,25 +1,20 @@
 import numpy as np
 import sklearn
 import librosa
+from onset_offset import onset,offset
 
-def audio_to_data(audio):
-    x,sr = librosa.load("sinesweep_recording.wav")
-    pitches, magnitudes = librosa.piptrack(x,sr=sr)
-    scaler = sklearn.preprocessing.MinMaxScaler((0,127))
-    int_mag = int(scaler.fit(magnitudes))
+def audio_to_data(audio_path, bpm):
+    #x,sr = librosa.load("sinesweep_recording.wav")
+    pitches = pitch_track
+    onset = onset(x,sr,bpm)
+    offset = offset(x,sr,bpm)
+    offset_index=0
+    #for event in range(len(onset)):
+        #if offset[offset_index]<onset[event+1]:
+        #then append note,onset[event],offset[offset_index],vel
 
+        #if offset[offset_index]>onset[event+1]:
+        #then append note,onset[event],onset[index+1],vel
 
-def findNearestNote(freq,scale):
-    noteIndex = np.argmin(np.abs(scale-freq))
-    #print(freq)
-    return scale[noteIndex]
-
-def getBaseFreq(freq):
-    #multiplier = np.zeros(np.shape(freqArr)[0])
-    #for i, freq in enumerate(freqArr):
-    multiplier = 0
-    while(freq>61.73541):
-        #freqArr[i] = freqArr[i]/2
-        freq = freq/2
-        multiplier += 1
-    return freq, multiplier
+        #if the pitch changes then redo for loop but with start as time of pitch change
+    return False

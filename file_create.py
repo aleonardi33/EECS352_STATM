@@ -1,9 +1,12 @@
 from mido import Message, MidiFile, MidiTrack
 import numpy as np
-##input should be an n by 4 numpy array with n being each note and input[n,0]=note
-##input[n,1]=velocity, input[n,2]=starttime, imput[n,3]=endtime
-##the second input is the name of the ouput file as a string
+
 def midi_file_create(notes,nof):
+    '''
+    input should be an n by 4 numpy array with n being each note and input[n,0]=note
+    input[n,1]=velocity, input[n,2]=starttime, imput[n,3]=endtime
+    the second input is the name of the ouput file as a string
+    '''
     mid = MidiFile()
     track = MidiTrack()
     mid.tracks.append(track)

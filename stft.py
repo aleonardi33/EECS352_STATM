@@ -42,5 +42,4 @@ def stft(signal, window_size, hop_size, window_type = 'hann'):
         end = start + window_size
         unwindowed_sound = signal[start:end]
         windowed_sound =  unwindowed_sound * window
-        stft[hop]= fft(windowed_sound, window_size) 
     return np.array(stft).T
