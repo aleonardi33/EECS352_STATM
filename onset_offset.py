@@ -7,9 +7,9 @@ def onset(audio, sr, bpm):
     '''
     Returns onset times already modified for MIDI time
     '''
-    hl = int((sr*32)/bpm)
+    hl = int((sr*24)/bpm)
     #y = stft(audio,(hl*2),hl,window_type = 'hann')
-    #hop size should be samples*32/bpm=hop size
+    #hop size should be samples*24/bpm=hop size
     onset = librosa.onset.onset_detect(audio, sr = sr, hop_length = hl)
     return onset
 
@@ -17,7 +17,7 @@ def offset (audio, sr, bpm):
     '''
     Returns the offset times already modified for MIDI time
     '''
-    hop_size = int((sr*32)/bpm)
+    hop_size = int((sr*24)/bpm)
     window_size = hop_size*2
     window = sp.signal.windows.hann(window_size, sym=False)
     threshold = 1

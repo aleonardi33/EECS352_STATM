@@ -2,19 +2,22 @@ import numpy as np
 import sklearn
 import librosa
 from onset_offset import onset,offset
+from pitch_track import p_track, quantizeNotes
+from sort import sort
 
-def audio_to_data(audio_path, bpm):
-    #x,sr = librosa.load("sinesweep_recording.wav")
-    pitches = pitch_track
-    onset = onset(x,sr,bpm)
-    offset = offset(x,sr,bpm)
-    offset_index=0
-    #for event in range(len(onset)):
-        #if offset[offset_index]<onset[event+1]:
-        #then append note,onset[event],offset[offset_index],vel
-
-        #if offset[offset_index]>onset[event+1]:
-        #then append note,onset[event],onset[index+1],vel
-
-        #if the pitch changes then redo for loop but with start as time of pitch change
-    return False
+def audio_to_data(audio_path, bpm=120, key = "chromatic"):
+    x,sr = librosa.load(audio_path)
+    pitches,pitch_change = p_track(x,sr,bpm)
+    pitch_number = quantizeNotes(pitches,key)
+    velocity = 67
+    onset_array = onset(x,sr,bpm)
+    offset_array = offset(x,sr,bpm)
+    midi_array = []
+    event_time, event_type = sort(onset_array,offset_array,pitch_change)
+    for i in range(len(event_time)):
+        if event_type[i]=="on" or "pitch":
+            j = i + 1
+            while event_time[i]==event_time[j]:
+                j =j+1
+            midi_array.append(pitch_number[event_time[i]],velocity,[event_time[i],event_time[j]])
+    return midi_array
