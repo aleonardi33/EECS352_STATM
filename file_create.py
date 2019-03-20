@@ -1,4 +1,5 @@
 from mido import Message, MidiFile, MidiTrack
+import mido
 import numpy as np
 
 def midi_file_create(notes,nof):
@@ -8,24 +9,28 @@ def midi_file_create(notes,nof):
     the second input is the name of the ouput file as a string
     '''
     mid = MidiFile()
+    mid.ticks_per_beat = 24
     track = MidiTrack()
     mid.tracks.append(track)
     track.append(Message('program_change',program=0,time=0))
-    num_notes = notes.shape[0]
-    check = notes.shape[1]
-    print(notes)
+    #MetaMessage('set_tempo',mido.bpm2tempo(bpm))
+    notes_np = np.array(notes)
+    num_notes = notes_np.shape[0]
+    print(num_notes)
+    check = notes_np.shape[1]
+    #print(notes)
     if check != 4:
         raise Exception('Height of Array does not equal 3')
     else:
         for i in range(num_notes):
-            if notes[i,0]>127:
+            if notes_np[i,0]>127:
                 raise Exception('Note not in range[0,127]')
             else:
-                if notes[i,1]>127:
+                if notes_np[i,1]>127:
                     raise Exception('Velocity not in range[0,127]')
                 else:
-                    track.append(Message('note_on',note=int(notes[i,0]),velocity=int(notes[i,1]),time=int(notes[i,2])))
-                    track.append(Message('note_off',note=int(notes[i,0]),velocity=int(notes[i,1]),time=int(notes[i,3])))
+                    track.append(Message('note_on',note=int(notes_np[i,0]),velocity=int(notes_np[i,1]),time=int(notes_np[i,2])))
+                    track.append(Message('note_off',note=int(notes_np[i,0]),velocity=int(notes_np[i,1]),time=int(notes_np[i,3])))
         if nof.endswith('.mid'):
             mid.save(filename=nof)
         else:

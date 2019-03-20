@@ -5,19 +5,26 @@ def p_track(audio,sr,bpm):
     '''
     returns pitches as well as times in which the pitch changes
     '''
-    hl = int((sr*24)/bpm)
-    raw_pitches = librosa.piptrack(audio,sr,hop_length=hl)
-    pitches = quantizeNotes(raw_pitches,"C")
+    hl = int((sr*60)/(bpm*24))
+    raw_pitches, magnitudes = librosa.piptrack(audio,sr,hop_length=hl)
+    #print(raw_pitches)
+    melody = getFundFreqs(raw_pitches)
+    pitches = quantizeNotes(melody,"C")
+    #print(pitches)
     pitch_change = []
     for pitch in range(len(pitches)):
-        if pitches[pitch] != pitches[pitch+1]:
-            pitch_change.append(pitch)
+        if pitch != 0:
+            if pitches[pitch] != pitches[pitch-1]:
+                pitch_change.append(pitch)
     return pitches, pitch_change
 
 def quantizeNotes(inputArr, key):
     scale, midi = getNotesInKeyOf(key)
     quantizedArr = np.zeros(np.shape(inputArr)[0])
+    #print(inputArr)
     for i,sample in enumerate(inputArr):
+        #print('sample')
+        #print(sample)
         lowNote, octave = getBaseFreq(sample)
         note = findNearestNote(lowNote, scale, midi)
         quantizedArr[i] = note + (12*octave)
@@ -63,10 +70,10 @@ def getNotesInKeyOf(key):
     output[6] = allNotes[11]
 
     midi_output = np.zeros(7)
-    midi_output[0] = allMIDINotes[0]
+    midi_output[0] = allMIDINotes[1]
     midi_output[1] = allMIDINotes[2]
     midi_output[2] = allMIDINotes[4]
-    midi_output[3] = allMIDINotes[5]
+    midi_output[3] = allMIDINotes[6]
     midi_output[4] = allMIDINotes[7]
     midi_output[5] = allMIDINotes[9]
     midi_output[6] = allMIDINotes[11]
@@ -86,3 +93,68 @@ def getBaseFreq(freq):
         freq = freq/2
         multiplier += 1
     return freq, multiplier
+
+
+def getFundFreqs(pitchesArr):
+    fundFreqArr = np.array([])
+    transformedPitches = pitchesArr.T
+
+    for ind, time in enumerate(transformedPitches):
+        for ind2, freq in enumerate(time):
+            if freq>0:
+                fundFreqArr = np.append(fundFreqArr,freq)
+                break
+    return fundFreqArr
+
+def pitch_smoothing(midi_array):
+    part_1 = False
+    midi_array_np = np.array(midi_array)
+    #shape = midi_array_np.shape[0]
+    i=0
+    while i < midi_array_np.shape[0]:
+        #deal with repeating notes
+        if i != 0 and i != midi_array_np.shape[0]:
+            if midi_array_np[i-1,0]==midi_array_np[i,0] and midi_array_np[i,0] == midi_array_np[i+1,0]:
+                #print('reached')
+                if midi_array_np[i-1,3] < 10 and midi_array_np[i,3] < 10 and midi_array_np[i+1,3]<10:
+                    #print('r1')
+                    midi_array_np[i,3]=midi_array_np[i,3]+midi_array_np[i-1,3]+midi_array_np[i+1,3]
+                    midi_array_np = np.delete(midi_array_np,i+1,0)
+                    midi_array_np = np.delete(midi_array_np,i-1,0)
+                else:
+                    if midi_array_np[i-1,3] < 10 or midi_array_np[i,3]<10:
+                        #print('r2')
+                        #print(midi_array_np[i-1,3])
+                        midi_array_np[i-1,3]=midi_array_np[i-1,3]+midi_array_np[i,3]
+                        #print(midi_array_np[i-1,3])
+                        part_1 = True
+                    if midi_array_np[i+1,3] < 10 :
+                        #print('r3')
+                        #print(midi_array_np[i+1,3])
+                        midi_array_np[i+1,3]=midi_array_np[i+1,3]+midi_array_np[i,3]
+                        #print(midi_array_np[i+1,3])
+                        part_1 = True
+                    if part_1:
+                        #print(midi_array_np.shape[0])
+                        midi_array_np = np.delete(midi_array_np,i,0)
+                        #print(midi_array_np.shape[0])
+                        part_1 = False
+        i = i+1
+    #deal with short notes 1 - 2 semitones off
+    i=0
+    while i < midi_array_np.shape[0]-1:
+        if i != 0 and i < midi_array_np.shape[0]:
+            if 
+            if midi_array_np[i-1,0]==midi_array_np[i+1,0] and midi_array_np[i-1,0]!=midi_array_np[i,0]:
+                midi_array_np[i-1,3]=midi_array_np[i,3]+midi_array_np[i-1,3]+midi_array_np[i+1,3]
+                midi_array_np = np.delete(midi_array_np,i+1,0)
+                midi_array_np = np.delete(midi_array_np,i-1,0)
+                i = i-1
+            else:
+                i = i+1
+        else:
+            i = i+1
+    return midi_array_np
+
+
+            

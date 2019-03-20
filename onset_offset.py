@@ -3,36 +3,85 @@ import librosa
 from stft import stft
 import scipy as sp
 
-def onset(audio, sr, bpm):
+def onset(audio, sr, bpm,length):
     '''
     Returns onset times already modified for MIDI time
     '''
-    hl = int((sr*24)/bpm)
-    #y = stft(audio,(hl*2),hl,window_type = 'hann')
-    #hop size should be samples*24/bpm=hop size
-    onset = librosa.onset.onset_detect(audio, sr = sr, hop_length = hl)
-    return onset
-
-def offset (audio, sr, bpm):
+    hl = int((sr*60)/(bpm*24))
+    onset_list = librosa.onset.onset_detect(audio, sr = sr, hop_length = hl)
+    index = 0
+    while index < len(onset_list):
+        if onset_list[index] > length:
+            onset_list = onset_list[0:index]
+            break
+        else:
+            index = index + 1
+            
     '''
-    Returns the offset times already modified for MIDI time
-    '''
-    hop_size = int((sr*24)/bpm)
+    hop_size = int((sr*60)/(bpm*48))
     window_size = hop_size*2
     window = sp.signal.windows.hann(window_size, sym=False)
-    threshold = 1
-
-    offset_list = []
+    threshold = .1
+    last_value = 0
+    last_onset = -1
+    onset_list = []
 
     length_to_cover_with_hops = len(audio) - window_size
     assert (length_to_cover_with_hops >= 0), "window_size cannot be longer than the signal to be windowed"
-    num_hops = int(1 + np.floor(length_to_cover_with_hops/hop_size))
-
+    #num_hops = int(1 + np.floor(length_to_cover_with_hops/hop_size))
+    num_hops = length
     for hop in range(num_hops):
         start = hop*hop_size
         end = start + window_size
         unwindowed_sound = audio[start:end]
         windowed_sound =  unwindowed_sound * window
+        rms = np.sqrt(np.mean(windowed_sound**2))
+        #print(hop)
+        #print(last_value/rms)
+        try:
+            if (last_value/rms) < threshold:
+                if last_onset is not (hop - 1):
+                    onset_list.append(hop)
+                    last_onset = hop
+                else:
+                    last_onset = hop
+        except:
+            last_onset = hop
+        last_value = rms
+    '''
+    #print(onset_list)
+    return onset_list
+
+def offset (audio, sr, bpm,length):
+    '''
+    Returns the offset times already modified for MIDI time
+    '''
+    hop_size = int((sr*60)/(bpm*24))
+    window_size = hop_size*2
+    window = sp.signal.windows.hann(window_size, sym=False)
+    threshold = .002
+
+    offset_list = []
+
+    length_to_cover_with_hops = len(audio) - window_size
+    assert (length_to_cover_with_hops >= 0), "window_size cannot be longer than the signal to be windowed"
+    #num_hops = int(1 + np.floor(length_to_cover_with_hops/hop_size))
+    num_hops = length
+    last_offset = -1
+    #print(num_hops)
+    for hop in range(num_hops-1):
+        start = hop*hop_size
+        end = start + window_size
+        #print(start)
+        #print(end)
+        unwindowed_sound = audio[start:end]
+        windowed_sound =  unwindowed_sound * window
         if np.sqrt(np.mean(windowed_sound**2)) < threshold:
-            offset_list.append(hop)
+            #print(np.sqrt(np.mean(windowed_sound**2)))
+            #print(hop)
+            if last_offset is not (hop - 1):
+                offset_list.append(hop)
+                last_offset = hop
+            else:
+                last_offset = hop
     return offset_list
