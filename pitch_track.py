@@ -1,5 +1,6 @@
 import numpy as np
 import librosa
+import statistics
 
 def p_track(audio,sr,bpm):
     '''
@@ -9,7 +10,8 @@ def p_track(audio,sr,bpm):
     raw_pitches, magnitudes = librosa.piptrack(audio,sr,hop_length=hl)
     #print(raw_pitches)
     melody = getFundFreqs(raw_pitches)
-    pitches = quantizeNotes(melody,"C")
+    unclean = quantizeNotes(melody,"C")
+    pitches = clean_input(unclean)
     #print(pitches)
     pitch_change = []
     for pitch in range(len(pitches)):
@@ -61,11 +63,11 @@ def getNotesInKeyOf(key):
     allMIDINotes[11] = 35
     
     output = np.zeros(7)
-    output[0] = allNotes[0]
+    output[0] = allNotes[1]
     output[1] = allNotes[2]
     output[2] = allNotes[4]
-    output[3] = allNotes[5]
-    output[4] = allNotes[7]
+    output[3] = allNotes[6]
+    output[4] = allNotes[8]
     output[5] = allNotes[9]
     output[6] = allNotes[11]
 
@@ -78,7 +80,7 @@ def getNotesInKeyOf(key):
     midi_output[5] = allMIDINotes[9]
     midi_output[6] = allMIDINotes[11]
     
-    return output, midi_output
+    return allNotes, allMIDINotes
 
 def findNearestNote(freq,scale,midi):
     noteIndex = np.argmin(np.abs(scale-freq))
@@ -144,17 +146,65 @@ def pitch_smoothing(midi_array):
     i=0
     while i < midi_array_np.shape[0]-1:
         if i != 0 and i < midi_array_np.shape[0]:
-            if 
             if midi_array_np[i-1,0]==midi_array_np[i+1,0] and midi_array_np[i-1,0]!=midi_array_np[i,0]:
-                midi_array_np[i-1,3]=midi_array_np[i,3]+midi_array_np[i-1,3]+midi_array_np[i+1,3]
-                midi_array_np = np.delete(midi_array_np,i+1,0)
-                midi_array_np = np.delete(midi_array_np,i-1,0)
-                i = i-1
+                if midi_array_np[i,3]<4:
+                    midi_array_np[i-1,3]=midi_array_np[i,3]+midi_array_np[i-1,3]+midi_array_np[i+1,3]
+                    midi_array_np = np.delete(midi_array_np,i+1,0)
+                    midi_array_np = np.delete(midi_array_np,i,0)
+                    i = i-1
+                else:
+                    i = i+1
             else:
                 i = i+1
         else:
             i = i+1
+    i = 0
+    '''
+    #if long string of unreasonably short notes take their mode and if two modes use first note
+    while i < midi_array_np.shape[0]-1:
+        note_list = []
+        time = 0
+        priority_note = 0
+        delete_n = 1
+        if midi_array_np[i,3]<3:
+            #print('r1')
+            j = i +1
+            time = midi_array_np[i,3]
+            note_list.append(midi_array_np[i,0])
+            priority_note = midi_array_np[i,0]
+            while j < midi_array_np.shape[0]-1:
+                #print('r2')
+                if midi_array_np[j,3]<3:
+                    time = midi_array_np[j,3]+time
+                    note_list.append(midi_array_np[j,0])
+                    j = j+1
+                    delete_n = delete_n +1
+                else:
+                    break
+            midi_array_np = np.delete(midi_array_np,[i+1,i+delete_n],0)
+            try:
+                note = statistics.mode(note_list)
+            except:
+                note = priority_note
+            midi_array_np[i,0]=note
+            midi_array_np[i,3] = time  
+        i = i+1
+    '''
     return midi_array_np
+
+def clean_input(quantizedD):
+    lastNote = 70
+        
+    for i,currNote in enumerate(quantizedD):
+        if i<(np.size(quantizedD)-1) and lastNote != currNote and currNote != quantizedD[i+1]:
+            isMinNoteLen = True
+        else:
+            isMinNoteLen = False
+        if currNote<26 or currNote > 90 or isMinNoteLen:
+            quantizedD[i]=lastNote
+        else:
+            lastNote=currNote
+    return quantizedD
 
 
             

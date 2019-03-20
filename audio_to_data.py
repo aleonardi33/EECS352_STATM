@@ -15,9 +15,9 @@ def audio_to_data(audio_path, bpm, key):
     #pitch_number = quantizeNotes(pitches,key)
     #print(pitches)
     velocity = 67
-    onset_array = onset(x,sr,bpm,len(pitches))
+    #onset_array = onset(x,sr,bpm,len(pitches))
     #offset_array = offset(x,sr,bpm,len(pitches))
-    #onset_array = []
+    onset_array = []
     offset_array = []
     midi_array = []
     event_time, event_type = sort(onset_array,offset_array,pitch_change)
@@ -33,12 +33,12 @@ def audio_to_data(audio_path, bpm, key):
                     end = 1
                     start = event_time[i]-last_end
                     last_end = event_time[j]
-                    print([pitches[event_time[i]],velocity,start,end])
+                    #print([pitches[event_time[i]],velocity,start,end])
                     midi_array.append([pitches[event_time[i]],velocity,start,end])
                 else:
                     end = event_time[j]-event_time[i]
                     start = event_time[i]-last_end
-                    print([pitches[event_time[i]],velocity,start,end])
+                    #print([pitches[event_time[i]],velocity,start,end])
                     midi_array.append([pitches[event_time[i]],velocity,start,end])
                     last_end = event_time[j]
             last_event_time = event_time[i]

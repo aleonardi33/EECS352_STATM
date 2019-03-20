@@ -59,7 +59,7 @@ def offset (audio, sr, bpm,length):
     hop_size = int((sr*60)/(bpm*24))
     window_size = hop_size*2
     window = sp.signal.windows.hann(window_size, sym=False)
-    threshold = .002
+    threshold = .0002
 
     offset_list = []
 
