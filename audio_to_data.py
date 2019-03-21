@@ -11,9 +11,9 @@ def audio_to_data(audio_path, bpm, key):
     '''
     #print(bpm)
     x,sr = librosa.load(audio_path)
-    pitches,pitch_change = p_track(x,sr,bpm)
+    pitches,pitch_change = p_track(x,sr,bpm,key)
     #pitch_number = quantizeNotes(pitches,key)
-    #print(pitches)
+    #print(pitches) 
     velocity = 67
     #onset_array = onset(x,sr,bpm,len(pitches))
     #offset_array = offset(x,sr,bpm,len(pitches))

@@ -8,9 +8,10 @@ def midi_file_create(notes,nof,bpm,key,clocks_per_click):
     input[n,1]=velocity, input[n,2]=starttime, imput[n,3]=endtime
     the second input is the name of the ouput file as a string
     '''
+    bpm = 130
     mid = MidiFile(type=0)
-    if key != 'chromatic':
-        MetaMessage('key_signature', key = key, time = 0)
+    #if key != 'chromatic':
+        #MetaMessage('key_signature', key = key, time = 0)
     MetaMessage('time_signature', clocks_per_click = clocks_per_click, time = 0)
     MetaMessage('set_tempo', tempo = bpm2tempo(bpm), time = 0)
     mid.ticks_per_beat = 24
@@ -39,7 +40,7 @@ def midi_file_create(notes,nof,bpm,key,clocks_per_click):
         #if nof.endswith('.mid'):
             #mid.save(filename=nof)
         #else:
-            #mid.save(filename=nof+'.mid')
+           # mid.save(filename=nof+'.mid')
         return mid
 
 

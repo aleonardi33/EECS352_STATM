@@ -2,15 +2,16 @@ import numpy as np
 import librosa
 import statistics
 
-def p_track(audio,sr,bpm):
+def p_track(audio,sr,bpm,key):
     '''
     returns pitches as well as times in which the pitch changes
     '''
+    #bpm = 130
     hl = int((sr*60)/(bpm*24))
     raw_pitches, magnitudes = librosa.piptrack(audio,sr,hop_length=hl)
     #print(raw_pitches)
     melody = getFundFreqs(raw_pitches)
-    unclean = quantizeNotes(melody,"C")
+    unclean = quantizeNotes(melody,key)
     pitches = clean_input(unclean)
     #print(pitches)
     pitch_change = []
@@ -31,6 +32,7 @@ def quantizeNotes(inputArr, key):
         note = findNearestNote(lowNote, scale, midi)
         quantizedArr[i] = note + (12*octave)
     return quantizedArr
+
 
 def getNotesInKeyOf(key):
     allNotes = np.zeros(12)
@@ -62,25 +64,77 @@ def getNotesInKeyOf(key):
     allMIDINotes[10] = 34
     allMIDINotes[11] = 35
     
+    if key == 7:
+        return allNotes, allMIDINotes
+    
     output = np.zeros(7)
-    output[0] = allNotes[1]
+    output[0] = allNotes[0]
     output[1] = allNotes[2]
     output[2] = allNotes[4]
-    output[3] = allNotes[6]
-    output[4] = allNotes[8]
+    output[3] = allNotes[5]
+    output[4] = allNotes[7]
     output[5] = allNotes[9]
     output[6] = allNotes[11]
 
     midi_output = np.zeros(7)
-    midi_output[0] = allMIDINotes[1]
+    midi_output[0] = allMIDINotes[0]
     midi_output[1] = allMIDINotes[2]
     midi_output[2] = allMIDINotes[4]
-    midi_output[3] = allMIDINotes[6]
+    midi_output[3] = allMIDINotes[5]
     midi_output[4] = allMIDINotes[7]
     midi_output[5] = allMIDINotes[9]
     midi_output[6] = allMIDINotes[11]
     
-    return allNotes, allMIDINotes
+    notesArr = np.array([0,2,4,5,7,9,11])
+    '''
+    keyDict = {
+        "c" : 0,
+        "g" : 1,
+        "d" : 2,
+        "a" : 3,
+        "e" : 4,
+        "b" : 5,
+        "f sharp" : 6,
+        "f" : -1,
+        "b flat" : -2,
+        "e flat" : -3,
+        "a flat" : -4,
+        "d flat" : -5
+    }
+    '''
+    
+    accidentals = key
+    if accidentals >= 0:
+        if accidentals > 0:
+            notesArr[3] += 1
+        if accidentals > 1:
+            notesArr[0] += 1
+        if accidentals > 2:
+            notesArr[4] += 1
+        if accidentals > 3:
+            notesArr[1] += 1
+        if accidentals > 3:
+            notesArr[5] += 1
+        if accidentals > 4:
+            notesArr[2] += 1
+    if accidentals < 0:
+        if accidentals < 0:
+            notesArr[6] -= 1
+        if accidentals < -1:
+            notesArr[2] -= 1
+        if accidentals < -2:
+            notesArr[5] -= 1
+        if accidentals < -3:
+            notesArr[1] -= 1
+        if accidentals < -4:
+            notesArr[4] -= 1
+        
+    for i, note in enumerate(notesArr):
+        output[i] = allNotes[note]
+        midi_output[i] = allMIDINotes[note]
+        
+    
+    return output, midi_output
 
 def findNearestNote(freq,scale,midi):
     noteIndex = np.argmin(np.abs(scale-freq))
