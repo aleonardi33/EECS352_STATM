@@ -6,7 +6,7 @@ import scipy as sp
 def onset(audio, sr, bpm,length):
     '''
     Returns onset times already modified for MIDI time
-    '''
+    
     hl = int((sr*60)/(bpm*24))
     onset_list = librosa.onset.onset_detect(audio, sr = sr, hop_length = hl)
     index = 0
@@ -48,7 +48,7 @@ def onset(audio, sr, bpm,length):
         except:
             last_onset = hop
         last_value = rms
-    '''
+    
     #print(onset_list)
     return onset_list
 

@@ -86,23 +86,24 @@ def getNotesInKeyOf(key):
     midi_output[6] = allMIDINotes[11]
     
     notesArr = np.array([0,2,4,5,7,9,11])
-    '''
     keyDict = {
-        "c" : 0,
-        "g" : 1,
-        "d" : 2,
-        "a" : 3,
-        "e" : 4,
-        "b" : 5,
-        "f sharp" : 6,
-        "f" : -1,
-        "b flat" : -2,
-        "e flat" : -3,
-        "a flat" : -4,
-        "d flat" : -5
+        "C" : 0,
+        "G" : 1,
+        "D" : 2,
+        "A" : 3,
+        "E" : 4,
+        "B" : 5,
+        "F#" : 6,
+        "F" : -1,
+        "Bb" : -2,
+        "Eb" : -3,
+        "Ab" : -4,
+        "Db" : -5,
+        "chromatic":7
     }
-    '''
-    
+    if key == 7:
+        return allNotes, allMIDINotes
+    key = keyDict[key]
     accidentals = key
     if accidentals >= 0:
         if accidentals > 0:
@@ -254,7 +255,7 @@ def clean_input(quantizedD):
             isMinNoteLen = True
         else:
             isMinNoteLen = False
-        if currNote<26 or currNote > 90 or isMinNoteLen:
+        if currNote<25 or currNote > 90 or isMinNoteLen:
             quantizedD[i]=lastNote
         else:
             lastNote=currNote

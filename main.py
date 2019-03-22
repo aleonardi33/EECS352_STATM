@@ -165,24 +165,29 @@ def dataset_test(correct_array):
     number = '/000'
     wav = '.wav'
     midi = '.mid'
-    #year_n = ['8']
-    #person_n = ['07']
-    #number_n = ['03']
-    year_n = ['0','1','2','3','4','5','6','7','8']
-    person_n = ['01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31','32','33','34','35']
-    number_n = ['01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31','32','33','34','35','36','37','38','39','40','41','42','43','44','45','46','47','48']
+    year_n = ['6']
+    person_n = ['23']
+    number_n = ['12']
+    #year_n = ['0','1','2','3','4','5','6','7','8']
+    #person_n = ['01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31','32','33','34','35']
+    #number_n = ['01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31','32','33','34','35','36','37','38','39','40','41','42','43','44','45','46','47','48']
     for y in year_n:
         for p in person_n:
-            i = 0
+            i = 11
             for n in number_n:
                 if i != 11 and i != 15 and i != 22 and i !=  25 and i !=  27 and i !=  31 and i !=  37 and i !=  39 and i !=  43 and i !=  45:
                     try:
                         real_tf = correct_array[i]
-                        #print(real_tf[0])
+                        real_tf[0]=1
                         mid = wavtomid(test+year+y+person+p+number+n+wav,y+p+n,bpm=int(real_tf[2]),key=int(real_tf[0]))
                         #print(mid)
                         test_tf = mid_to_audio(mid)
                         test_tf = test_tf[3:len(test_tf)-3]
+                        for i in range(len(test_tf)):
+                            if test_tf[i]>58:
+                                value = i
+                                break
+                        test_tf = test_tf[value:len(test_tf)-value]
                         real_tf = real_tf[3:len(real_tf)-3]
                         #print(test_tf)
                         #print(real_tf)
@@ -213,3 +218,6 @@ for n in number_n:
 
 #print(correct_array)
 print(dataset_test(correct_array))  
+
+#wavtomid(test+year+'8'+person+'08'+number+'07'+wav,'00110',key="C",bpm=165)
+wavtomid('test2.wav','test2')

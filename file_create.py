@@ -37,10 +37,10 @@ def midi_file_create(notes,nof,bpm,key,clocks_per_click):
                 else:
                     track.append(Message('note_on',note=int(notes_np[i,0]),velocity=int(notes_np[i,1]),time=int(notes_np[i,2])))
                     track.append(Message('note_off',note=int(notes_np[i,0]),velocity=int(notes_np[i,1]),time=int(notes_np[i,3])))
-        #if nof.endswith('.mid'):
-            #mid.save(filename=nof)
-        #else:
-           # mid.save(filename=nof+'.mid')
+        if nof.endswith('.mid'):
+            mid.save(filename=nof)
+        else:
+            mid.save(filename=nof+'.mid')
         return mid
 
 
