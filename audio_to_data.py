@@ -16,9 +16,10 @@ def audio_to_data(audio_path, bpm, key):
     #print(pitches) 
     velocity = 67
     #onset_array = onset(x,sr,bpm,len(pitches))
-    #offset_array = offset(x,sr,bpm,len(pitches))
+    offset_array = offset(x,sr,bpm,len(pitches))
+    print(offset_array)
     onset_array = []
-    offset_array = []
+    #offset_array = []
     midi_array = []
     event_time, event_type = sort(onset_array,offset_array,pitch_change)
     last_event_time = 0

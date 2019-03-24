@@ -59,7 +59,7 @@ def offset (audio, sr, bpm,length):
     hop_size = int((sr*60)/(bpm*24))
     window_size = hop_size*2
     window = sp.signal.windows.hann(window_size, sym=False)
-    threshold = .0002
+    threshold = .005
 
     offset_list = []
 
@@ -75,11 +75,15 @@ def offset (audio, sr, bpm,length):
         #print(start)
         #print(end)
         unwindowed_sound = audio[start:end]
+        if len(unwindowed_sound)!=len(window):
+            zeros = np.zeros(len(window)-len(unwindowed_sound))
+            unwindowed_sound = np.append(unwindowed_sound, zeros,0)
         windowed_sound =  unwindowed_sound * window
+        print(np.sqrt(np.mean(windowed_sound**2)))
         if np.sqrt(np.mean(windowed_sound**2)) < threshold:
             #print(np.sqrt(np.mean(windowed_sound**2)))
-            #print(hop)
-            if last_offset is not (hop - 1):
+            print(hop)
+            if last_offset is not (hop - 1) and last_offset is not (hop-2):
                 offset_list.append(hop)
                 last_offset = hop
             else:

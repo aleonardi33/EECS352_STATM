@@ -7,8 +7,11 @@ import librosa
 from pitch_track import p_track
 from wavtomid import wavtomid
 #from onset_offset import onset,offset
-
-###11, 15, 22, 25, 27, 31, 37, 39, 43, 45
+'''
+change the 'path' input to an acceptable path and change 'name_of_file' to the name the file is to be saved as
+acceptable key inputs are capital letters A through G and sharps and flats are represented as # and b
+'''
+wavtomid('path','name_of_file',key='chromatic',bpm=120)
 '''
 notes = np.zeros((1,4))
 notes[0,0]=int(63)
@@ -207,7 +210,7 @@ def dataset_test(correct_array):
     accuracy = correct/total
     return accuracy
   
-
+'''
 j = 0
 for n in number_n:
     #print(n)
@@ -218,6 +221,6 @@ for n in number_n:
 
 #print(correct_array)
 print(dataset_test(correct_array))  
+'''
 
-#wavtomid(test+year+'8'+person+'08'+number+'07'+wav,'00110',key="C",bpm=165)
-wavtomid('test2.wav','test2')
+#wavtomid('test3.wav','test3')
